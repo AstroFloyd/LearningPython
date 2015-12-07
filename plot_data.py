@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 
+## @file plot_data.py
+#  Python example for reading data from a text file and plotting them using matplotlib
+#
+
 import numpy as np
 import matplotlib.pyplot as plt
 
+## Data array
 dat = np.loadtxt("plot_data.dat")  # Reads the 11x2 array
 
 # plt.plot(dat)                    # Would plot two lines, each vs. the array index
