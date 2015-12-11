@@ -21,6 +21,7 @@ plt.ylim(-1.05,1.4)                             # Extend the horizontal plot ran
 
 line_sin, = plt.plot(x, ys, label="Sine")   # Plot sine
 line_cos, = plt.plot(x, yc, label="Cosine") # Plot cosine
+#plt.plot(x, ys, 'b-o',   x, yc, 'r-s') # Plot both
 
 plt.legend(handles=[line_sin,line_cos])     # Create legend
 
@@ -30,4 +31,5 @@ plt.title('A sine and a cosine')            # Plot title
 plt.grid(True)                              # Plot a grid
 plt.savefig("plot_legend.png")              # Save the plot as png
 #plt.show()                                  # Show the plot to screen
+
 
