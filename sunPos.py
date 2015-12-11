@@ -26,9 +26,10 @@ sun.compute(obs)
 # Print settings and output:
 print("Date: " + str(obs.date))
 print(obs)
+print("Sun az:  %6.2f°" % (sun.az * 57.2957795))
 print("Sun alt: %6.2f°" % (sun.alt * 57.2957795))
 print()
 
 
-
+#print(ephem.localtime(utc))
 
