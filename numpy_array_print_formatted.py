@@ -29,6 +29,5 @@ for i in range(10):
     print((4*"%6.2f"+7*"%9.4f") % tuple(dat[i,:]))
 
 
-    
 print()
 

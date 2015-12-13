@@ -29,6 +29,8 @@ plt.xlabel('x axis')                        # Label the horizontal axis
 plt.ylabel('y axis')                        # Label the vertical axis
 plt.title('A sine and a cosine')            # Plot title
 plt.grid(True)                              # Plot a grid
+
+plt.tight_layout()                          # Use narrow margins
 plt.savefig("plot_legend.png")              # Save the plot as png
 #plt.show()                                  # Show the plot to screen
 

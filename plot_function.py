@@ -19,6 +19,8 @@ plt.xlabel('time (s)')            # Label the horizontal axis
 plt.ylabel('amplitude')           # Label the vertical axis
 plt.title('Plot title')           # Plot title
 plt.grid(True)                    # Plot a grid
+
+plt.tight_layout()                # Use narrow margins
 plt.savefig("plot_function.png")  # Save the plot as png
-plt.show()                        # Show the plot to screen
+#plt.show()                        # Show the plot to screen
 
