@@ -19,8 +19,8 @@ yc = np.cos(2*np.pi*x)                      # cos(2pi x)
 #plt.xlim(0,2.7)                             # Extend the horizontal plot range (before plotting) to create room for the legend box
 plt.ylim(-1.05,1.4)                             # Extend the horizontal plot range (before plotting) to create room for the legend box
 
-line_sin, = plt.plot(x, ys, label="Sine")   # Plot sine
-line_cos, = plt.plot(x, yc, label="Cosine") # Plot cosine
+line_sin, = plt.plot(x, ys, 'b-o', label="Sine")   # Plot sine
+line_cos, = plt.plot(x, yc, 'r-s', label="Cosine") # Plot cosine
 #plt.plot(x, ys, 'b-o',   x, yc, 'r-s') # Plot both
 
 plt.legend(handles=[line_sin,line_cos])     # Create legend

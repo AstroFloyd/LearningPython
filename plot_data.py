@@ -11,7 +11,11 @@ import matplotlib.pyplot as plt
 dat = np.loadtxt("plot_data.dat")  # Reads the 11x2 array
 
 # plt.plot(dat)                    # Would plot two lines, each vs. the array index
-plt.plot(dat[:,0],dat[:,1])        # Plot column 2 as a function of column 1
+#plt.plot(dat[:,0],dat[:,1])        # Plot column 2 as a function of column 1
+
+plt.errorbar(dat[:,0], dat[:,1], fmt='rs-',
+    xerr=(dat[:,0]+1)**(-0.1), yerr=dat[:,0]+1)  # Plot error bars, a red line and squares
+plt.plot(dat[:,0],dat[:,1], 'bs')                # Use blue iso red squares
 
 plt.xlabel('time (s)')             # Label the horizontal axis
 plt.ylabel('time squared')         # Label the vertical axis
