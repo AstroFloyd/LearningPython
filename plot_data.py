@@ -20,6 +20,8 @@ plt.plot(dat[:,0],dat[:,1], 'bs')                # Use blue iso red squares
 plt.xlabel('time (s)')             # Label the horizontal axis
 plt.ylabel('time squared')         # Label the vertical axis
 plt.title('Plot title')            # Plot title
+plt.yscale('log')                  # Use a logarithmic scale for the vertical axis
+plt.ylim(0.5,120)                  # Set the vertical range
 plt.grid(True)                     # Plot a grid
 
 plt.tight_layout()                 # Use narrow margins
