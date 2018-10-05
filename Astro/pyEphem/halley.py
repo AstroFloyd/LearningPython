@@ -42,6 +42,10 @@ print("Sun azimuth:  ", s.az/ephem.degree)
 
 
 a = ephem.star('Aldebaran')
+#a = ephem.FixedBody(epoch=509)
+#a._ra = 1 #ephem.hours(3.20754*15) #*15*ephem.degree  # ephem.hours('02:04:10.278')   # in hours
+#a._dec = 12.18701*ephem.degree    # ephem.degrees('+46:41:16.21') # in degrees
+#a._a_epoch = ephem.Date((509, 3, 11,  13, 0, 0.0))
 a.compute(athens)
 
 print()
@@ -86,3 +90,6 @@ print("Minimum approach:  ", ephem.Date(minDist))
 print(a.ra/ephem.degree/15, a.dec/ephem.degree)
 
 
+athens.date = ephem.date((2000,6,6))
+a.compute(athens)
+print(a.ra/ephem.degree/15, a.dec/ephem.degree)
