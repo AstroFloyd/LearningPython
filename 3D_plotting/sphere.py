@@ -25,7 +25,7 @@ ax = fig.add_subplot(111, projection='3d')
 # Create a sphere:
 r = 1
 phi   = np.linspace(0, 2*np.pi, 100)  # Azimuthal coordinate
-theta = np.linspace(0,   np.pi, 100)  # Zenith angle
+theta = np.linspace(0,   np.pi, 100)  # Altitude coordinate
 
 x = r * np.outer(np.cos(phi), np.sin(theta))
 y = r * np.outer(np.sin(phi), np.sin(theta))
@@ -40,8 +40,8 @@ ax.plot_surface(x, y, z,  rstride=2, cstride=4, color='b', linewidth=0, alpha=0.
 ax.plot(np.sin(phi), np.cos(phi), 0,  color='k', linestyle='dashed')
 
 # Overplot equator, front:
-horiz_front = np.linspace(0, np.pi, 100)
-ax.plot( np.sin(horiz_front), np.cos(horiz_front), 0, color='k')  # Circle with z=0
+eq_front = np.linspace(0, np.pi, 100)
+ax.plot( np.sin(eq_front), np.cos(eq_front), 0, color='k')  # Circle with z=0
 
 
 ### MERIDIAN ###
@@ -53,9 +53,9 @@ b = b * np.cos(vpAz) + np.cross(a, b) * np.sin(vpAz) + a * np.dot(a, b) * (1 - n
 # Plot whole meridian, dashed:
 ax.plot( a[0] * np.sin(phi) + b[0] * np.cos(phi),  b[1] * np.cos(phi),  a[2] * np.sin(phi) + b[2] * np.cos(phi),  color='k', linestyle='dashed')
 
-# Plot meridian, front:
-vert_front = np.linspace(np.pi / 2, 3 * np.pi / 2, 100)
-ax.plot( a[0] * np.sin(vert_front) + b[0] * np.cos(vert_front),  b[1] * np.cos(vert_front),  a[2] * np.sin(vert_front) + b[2] * np.cos(vert_front), color='k')
+# Overplot meridian, front:
+meri_front = np.linspace(1/2*np.pi, 3/2*np.pi, 100)  # 1/2 pi - 3/2 pi
+ax.plot( a[0] * np.sin(meri_front) + b[0] * np.cos(meri_front),  b[1] * np.cos(meri_front),  a[2] * np.sin(meri_front) + b[2] * np.cos(meri_front), color='k')
 
 
 
