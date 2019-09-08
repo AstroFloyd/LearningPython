@@ -155,7 +155,7 @@ ax.set_zlim3d(-pllim,pllim)
 
 #plt.show()
 plt.tight_layout()
-plt.savefig('dome.png')
+plt.savefig('hemisphere.png')
 plt.close()
 
 
