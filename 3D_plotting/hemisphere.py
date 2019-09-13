@@ -43,7 +43,7 @@ ax.plot_surface(x, y, z,  rstride=2, cstride=4, color='b', linewidth=0, alpha=0.
 
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 zeros = np.zeros(len(phi))
-verts = [list(zip(np.sin(phi), np.cos(phi), zeros ))]
+verts = [list(zip(np.sin(phi), np.cos(phi), zeros ))]  # list() needed for zip() in Python3
 poly = Poly3DCollection(verts)
 poly.set_facecolor('g')
 poly.set_alpha(0.5)  # No effect?
@@ -153,9 +153,10 @@ ax.set_ylim3d(-pllim,pllim)
 ax.set_zlim3d(-pllim,pllim)
 
 
-#plt.show()
+
 plt.tight_layout()
 plt.savefig('hemisphere.png')
+plt.show()
 plt.close()
 
 
