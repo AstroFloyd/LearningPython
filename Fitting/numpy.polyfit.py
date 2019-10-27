@@ -10,10 +10,8 @@ References:
 
 
 import numpy as np
-#from scipy import optimize
 import matplotlib.pyplot as plt
 import math as m
-import pandas as pd
 
 plt.style.use('dark_background')        # Invert colours
 
