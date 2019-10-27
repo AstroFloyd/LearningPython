@@ -10,10 +10,17 @@ References:
 
 
 import numpy as np
+from scipy.optimize import least_squares
 import matplotlib.pyplot as plt
 import math as m
 
-plt.style.use('dark_background')        # Invert colours
+
+# Function for computing residuals:
+def resFun(c, x, y):
+    return c[0] + c[1] * x + c[2] * x**2  -  y
+
+
+#plt.style.use('dark_background')        # Invert colours
 
 # Create and plot noisy data:
 trueCoefs = [-5, 1, 3]
@@ -33,12 +40,12 @@ plt.errorbar(x, y, yerr=errors, fmt='ro')  # Plot red circles with actual error 
 sigmas = np.ones(len(y))*sigma
 
 # Fit data and plot fit:
-print("\nSimple fit:")
+print("\nSimple fit, no errors:")
 coefficients = np.polyfit(x, y, 2)
 print(coefficients)
 
 
-print("\nFit with variance/covariance matrix:")
+print("\nFit without errors, with variance/covariance matrix:")
 coefficients, varCov = np.polyfit(x, y, 2, cov=True, w=1/sigmas)
 print(coefficients)
 print(varCov)
@@ -49,7 +56,7 @@ for iCoef in range(3):
     
 
 
-print("\nFit with chi squared:")
+print("\nFit without errors, with chi squared:")
 coefficients, residuals, rank, singular_values, rcond = np.polyfit(x, y, 2, full=True)
 #print(residuals)
 print("coefficients: ", coefficients)
@@ -63,42 +70,77 @@ print("singular_values: ", singular_values)
 print("rcond: ", rcond)
 
 
-print("\n\nFit with constant errors:")
-coefficients, residuals, rank, singular_values, rcond = np.polyfit(x, y, 2, w=1/sigmas, full=True)
-print("coefficients: ", coefficients)
-Chi2 = residuals[0]                    # Chi^2
-redChi2 = Chi2/(len(x)-rank)           # Reduced Chi^2 = Chi^2 / (n-m)
-print("Chi2: ", Chi2)
-print("Red. Chi2: ", redChi2)
 
-coefficients, varCov = np.polyfit(x, y, 2, cov=True, w=1/sigmas)
-print("\nCoefficients:")
-for iCoef in range(3):
-    print(iCoef+1,":", coefficients[iCoef], "+-", m.sqrt(varCov[iCoef][iCoef]))
+if False:
+    print("\n\nFit with constant errors:")
+    coefficients, residuals, rank, singular_values, rcond = np.polyfit(x, y, 2, w=1/sigmas, full=True)
+    print("coefficients: ", coefficients)
+    Chi2 = residuals[0]                    # Chi^2
+    redChi2 = Chi2/(len(x)-rank)           # Reduced Chi^2 = Chi^2 / (n-m)
+    print("Chi2: ", Chi2)
+    print("Red. Chi2: ", redChi2)
+    
+    coefficients, varCov = np.polyfit(x, y, 2, cov=True, w=1/sigmas)
+    print("\nCoefficients:")
+    for iCoef in range(3):
+        print(iCoef+1,":", coefficients[iCoef], "+-", m.sqrt(varCov[iCoef][iCoef]))
+        
+        
+        
+    print("\n\nFit with actual errors:")
+    coefficients, residuals, rank, singular_values, rcond = np.polyfit(x, y, 2, w=1/errors, full=True)
+    print("coefficients: ", coefficients)
+    Chi2 = residuals[0]                    # Chi^2
+    redChi2 = Chi2/(len(x)-rank)           # Reduced Chi^2 = Chi^2 / (n-m)
+    print("Chi2: ", Chi2)
+    print("Red. Chi2: ", redChi2)
+    
+    coefficients, varCov = np.polyfit(x, y, 2, cov=True, w=1/errors)
+    print("\nCoefficients:")
+    for iCoef in range(3):
+        print(iCoef+1,":", coefficients[iCoef], "+-", m.sqrt(varCov[iCoef][iCoef]))
     
 
 
-print("\n\nFit with actual errors:")
-coefficients, residuals, rank, singular_values, rcond = np.polyfit(x, y, 2, w=1/errors, full=True)
-print("coefficients: ", coefficients)
-Chi2 = residuals[0]                    # Chi^2
-redChi2 = Chi2/(len(x)-rank)           # Reduced Chi^2 = Chi^2 / (n-m)
-print("Chi2: ", Chi2)
-print("Red. Chi2: ", redChi2)
 
-coefficients, varCov = np.polyfit(x, y, 2, cov=True, w=1/errors)
-print("\nCoefficients:")
-for iCoef in range(3):
-    print(iCoef+1,":", coefficients[iCoef], "+-", m.sqrt(varCov[iCoef][iCoef]))
-    
-
-
-
-
+# Plot the (last) fit:
 xn = np.linspace(0, 2, 200)
 yn = np.polyval(coefficients, xn)
-
 plt.plot(xn, yn)
+
+
+
+
+
+print("\n\nFit with scipy.optimize.least_squares():")
+# Compute a standard least-squares solution using scipy.optimize:
+x0 = [-3, 0, 5]  # Initial guess for coefficients
+res = least_squares(resFun, x0, args=(x, y), method='lm')
+#print('res: ', res)
+
+print('Success:      ', res.success)
+print('Cost:         ', res.cost)
+#print('Optimality:   ', res.optimality)
+print('Coefficients: ', res.x)
+#print('Grad:         ', res.grad)
+#print('Residuals:    ', res.fun)
+
+Chi2 = sum(res.fun**2)
+redChi2 = Chi2/(len(x)-len(res.x))           # Reduced Chi^2 = Chi^2 / (n-m)
+print("Chi2: ", Chi2, res.cost*2)
+print("Red. Chi2: ", redChi2)
+
+
+# Plot the (last) fit:
+coefficients = [res.x[2], res.x[1], res.x[0]]
+xn = np.linspace(0, 2, 200)
+yn = np.polyval(coefficients, xn)
+plt.plot(xn, yn)
+
+
+
+
+
 
 plt.tight_layout()
 #plt.show()
