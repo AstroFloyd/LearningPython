@@ -16,8 +16,11 @@ import math as m
 
 
 # Function for computing residuals:
-def resFun(c, x, y):
+def resFun1(c, x, y):
     return c[0] + c[1] * x + c[2] * x**2  -  y
+
+def resFun2(c, x, y, sigmas):
+    return (c[0] + c[1] * x + c[2] * x**2  -  y)/sigmas
 
 
 #plt.style.use('dark_background')        # Invert colours
@@ -38,6 +41,7 @@ y = f(x) + errors
 plt.errorbar(x, y, yerr=errors, fmt='ro')  # Plot red circles with actual error bars
 
 sigmas = np.ones(len(y))*sigma
+sigmas = np.ones(len(y))
 
 # Fit data and plot fit:
 print("\nSimple fit, no errors:")
@@ -108,14 +112,15 @@ xn = np.linspace(0, 2, 200)
 yn = np.polyval(coefficients, xn)
 plt.plot(xn, yn)
 
-
+redChi20 = redChi2
 
 
 
 print("\n\nFit with scipy.optimize.least_squares():")
 # Compute a standard least-squares solution using scipy.optimize:
 x0 = [-3, 0, 5]  # Initial guess for coefficients
-res = least_squares(resFun, x0, args=(x, y), method='lm')
+#res = least_squares(resFun1, x0, args=(x, y), method='lm')
+res = least_squares(resFun2, x0, args=(x, y, sigmas), method='lm')
 #print('res: ', res)
 
 print('Success:      ', res.success)
@@ -130,13 +135,14 @@ redChi2 = Chi2/(len(x)-len(res.x))           # Reduced Chi^2 = Chi^2 / (n-m)
 print("Chi2: ", Chi2, res.cost*2)
 print("Red. Chi2: ", redChi2)
 
+print('\nDifference in red. Chi^2: ', abs(redChi20-redChi2))
+
 
 # Plot the (last) fit:
 coefficients = [res.x[2], res.x[1], res.x[0]]
 xn = np.linspace(0, 2, 200)
 yn = np.polyval(coefficients, xn)
 plt.plot(xn, yn)
-
 
 
 
