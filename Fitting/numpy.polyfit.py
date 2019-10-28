@@ -49,28 +49,28 @@ sigmas = np.ones(len(y))
 
 # Fit data and plot fit:
 print("\nSimple fit, no errors:")
-coefficients = np.polyfit(x, y, 2)
-print(coefficients)
+coefs = np.polyfit(x, y, 2)
+print(coefs)
 
 
 print("\nFit without errors, with variance/covariance matrix:")
-coefficients, varCov = np.polyfit(x, y, 2, cov=True, w=1/sigmas)
-print(coefficients)
+coefs, varCov = np.polyfit(x, y, 2, cov=True, w=1/sigmas)
+print(coefs)
 print(varCov)
 print()
 print("Coefficients:")
 for iCoef in range(3):
-    print(iCoef+1,":", coefficients[iCoef], "+-", m.sqrt(varCov[iCoef][iCoef]))
+    print(iCoef+1,":", coefs[iCoef], "+-", m.sqrt(varCov[iCoef][iCoef]))
     
 
 
 print("\nFit without errors, with chi squared:")
-coefficients, residuals, rank, singular_values, rcond = np.polyfit(x, y, 2, full=True)
-#print(residuals)
-print("coefficients: ", coefficients)
-print("residuals: ", residuals)
-Chi2 = residuals[0]                    # Chi^2
-redChi2 = Chi2/(len(x)-rank)           # Reduced Chi^2 = Chi^2 / (n-m)
+coefs, resids, rank, singular_values, rcond = np.polyfit(x, y, 2, full=True)
+#print(resids)
+print("coefficients: ", coefs)
+print("residuals: ", resids)
+Chi2 = resids[0]                    # Chi^2
+redChi2 = Chi2/(len(x)-rank)        # Reduced Chi^2 = Chi^2 / (n-m)
 print("Chi2: ", Chi2)
 print("Red. Chi2: ", redChi2)
 print("rank: ", rank)
@@ -81,39 +81,39 @@ print("rcond: ", rcond)
 
 if False:
     print("\n\nFit with constant errors:")
-    coefficients, residuals, rank, singular_values, rcond = np.polyfit(x, y, 2, w=1/sigmas, full=True)
-    print("coefficients: ", coefficients)
-    Chi2 = residuals[0]                    # Chi^2
-    redChi2 = Chi2/(len(x)-rank)           # Reduced Chi^2 = Chi^2 / (n-m)
+    coefs, resids, rank, singular_values, rcond = np.polyfit(x, y, 2, w=1/sigmas, full=True)
+    print("coefficients: ", coefs)
+    Chi2 = resids[0]                    # Chi^2
+    redChi2 = Chi2/(len(x)-rank)        # Reduced Chi^2 = Chi^2 / (n-m)
     print("Chi2: ", Chi2)
     print("Red. Chi2: ", redChi2)
     
-    coefficients, varCov = np.polyfit(x, y, 2, cov=True, w=1/sigmas)
+    coefs, varCov = np.polyfit(x, y, 2, cov=True, w=1/sigmas)
     print("\nCoefficients:")
     for iCoef in range(3):
-        print(iCoef+1,":", coefficients[iCoef], "+-", m.sqrt(varCov[iCoef][iCoef]))
+        print(iCoef+1,":", coefs[iCoef], "+-", m.sqrt(varCov[iCoef][iCoef]))
         
         
         
     print("\n\nFit with actual errors:")
-    coefficients, residuals, rank, singular_values, rcond = np.polyfit(x, y, 2, w=1/errors, full=True)
-    print("coefficients: ", coefficients)
-    Chi2 = residuals[0]                    # Chi^2
-    redChi2 = Chi2/(len(x)-rank)           # Reduced Chi^2 = Chi^2 / (n-m)
+    coefs, resids, rank, singular_values, rcond = np.polyfit(x, y, 2, w=1/errors, full=True)
+    print("coefficients: ", coefs)
+    Chi2 = resids[0]                    # Chi^2
+    redChi2 = Chi2/(len(x)-rank)        # Reduced Chi^2 = Chi^2 / (n-m)
     print("Chi2: ", Chi2)
     print("Red. Chi2: ", redChi2)
     
-    coefficients, varCov = np.polyfit(x, y, 2, cov=True, w=1/errors)
+    coefs, varCov = np.polyfit(x, y, 2, cov=True, w=1/errors)
     print("\nCoefficients:")
     for iCoef in range(3):
-        print(iCoef+1,":", coefficients[iCoef], "+-", m.sqrt(varCov[iCoef][iCoef]))
+        print(iCoef+1,":", coefs[iCoef], "+-", m.sqrt(varCov[iCoef][iCoef]))
     
 
 
 
 # Plot the (last) fit:
 xn = np.linspace(0, 2, 200)
-yn = np.polyval(coefficients, xn)
+yn = np.polyval(coefs, xn)
 plt.plot(xn, yn)
 
 redChi20 = redChi2
@@ -143,9 +143,9 @@ print('\nDifference in red. Chi^2: ', abs(redChi20-redChi2))
 
 
 # Plot the (last) fit:
-coefficients = [res.x[2], res.x[1], res.x[0]]
+coefs = [res.x[2], res.x[1], res.x[0]]
 xn = np.linspace(0, 2, 200)
-yn = np.polyval(coefficients, xn)
+yn = np.polyval(coefs, xn)
 plt.plot(xn, yn)
 
 
@@ -164,10 +164,10 @@ print('Success:      ', ier)
 print('Coefficients: ', coefs)
 #print('Variance/cov: ', cov_x
 
-#residuals = resFun1(coefs, x, y)
-residuals = resFun2(coefs, x, y, sigmas)
+#resids = resFun1(coefs, x, y)
+resids = resFun2(coefs, x, y, sigmas)
 
-Chi2    = sum(residuals**2)            # Chi^2
+Chi2    = sum(resids**2)               # Chi^2
 redChi2 = Chi2/(len(x)-len(coefs))     # Reduced Chi^2 = Chi^2 / (n-m)
 varCov  = cov_x * redChi2              # Variance-covariance matrix
 dCoeffs = np.sqrt(np.diag(varCov))     # Standard deviations on the coefficients
@@ -203,5 +203,3 @@ plt.close()                             # Close the plot in order to start a new
 
 
 print()
-
-
