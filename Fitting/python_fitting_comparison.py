@@ -215,7 +215,7 @@ plt.plot(xn, yn)
 
 plt.tight_layout()
 #plt.show()
-plt.savefig('python_fitting_comaprison.png')                 # Save the plot as png
+plt.savefig('python_fitting_comparison.png')                 # Save the plot as png
 plt.close()                             # Close the plot in order to start a new one later
 
 
