@@ -16,14 +16,17 @@ import math as m
 
 
 # Function for computing residuals:
-def optFun(c, x):
-    return c[0] + c[1] * x + c[2] * x**2
+def optFun1(coefs, x):
+    return coefs[0] + coefs[1] * x + coefs[2] * x**2
 
-def resFun1(c, x, y):
-    return optFun(c, x)  -  y
+def optFun2(x, a,b,c):
+    return a + b * x + c * x**2
 
-def resFun2(c, x, y, sigmas):
-    return (optFun(c, x)  -  y)/sigmas
+def resFun1(coefs, x, y):
+    return optFun1(coefs, x)  -  y
+
+def resFun2(coefs, x, y, sigmas):
+    return (optFun1(coefs, x)  -  y)/sigmas
 
 
 #plt.style.use('dark_background')        # Invert colours
@@ -55,9 +58,9 @@ print(coefs)
 
 print("\nFit without errors, with variance/covariance matrix:")
 coefs, varCov = np.polyfit(x, y, 2, cov=True, w=1/sigmas)
-print(coefs)
-print(varCov)
-print()
+#print(coefs)
+#print(varCov)
+#print()
 print("Coefficients:")
 for iCoef in range(3):
     print(iCoef+1,":", coefs[iCoef], "+-", m.sqrt(varCov[iCoef][iCoef]))
@@ -73,9 +76,9 @@ Chi2 = resids[0]                    # Chi^2
 redChi2 = Chi2/(len(x)-rank)        # Reduced Chi^2 = Chi^2 / (n-m)
 print("Chi2: ", Chi2)
 print("Red. Chi2: ", redChi2)
-print("rank: ", rank)
-print("singular_values: ", singular_values)
-print("rcond: ", rcond)
+#print("rank: ", rank)
+#print("singular_values: ", singular_values)
+#print("rcond: ", rcond)
 
 
 
@@ -134,9 +137,16 @@ print('Coefficients: ', res.x)
 #print('Grad:         ', res.grad)
 #print('Residuals:    ', res.fun)
 
-Chi2 = sum(res.fun**2)
+dCoefs = [0,0,0]  # Not sure how to get the uncertainties in the coefficients!
+print("\nCoefficients:")
+for iCoef in range(3):
+    print(iCoef+1,":", coefs[iCoef], "+-", dCoefs[iCoef])
+    
+print()
+#Chi2 = sum(res.fun**2)                      # Chi^2
+Chi2 = res.cost*2  # Same thing!             # Chi^2
 redChi2 = Chi2/(len(x)-len(res.x))           # Reduced Chi^2 = Chi^2 / (n-m)
-print("Chi2: ", Chi2, res.cost*2)
+print("Chi2: ", Chi2)
 print("Red. Chi2: ", redChi2)
 
 print('\nDifference in red. Chi^2: ', abs(redChi20-redChi2))
@@ -164,17 +174,17 @@ print('Success:      ', ier)
 print('Coefficients: ', coefs)
 #print('Variance/cov: ', cov_x
 
-#resids = resFun1(coefs, x, y)
-resids = resFun2(coefs, x, y, sigmas)
+#resids = resFun1(coefs, x, y)         # Residuals
+resids = resFun2(coefs, x, y, sigmas)  # Residuals
 
 Chi2    = sum(resids**2)               # Chi^2
 redChi2 = Chi2/(len(x)-len(coefs))     # Reduced Chi^2 = Chi^2 / (n-m)
 varCov  = cov_x * redChi2              # Variance-covariance matrix
-dCoeffs = np.sqrt(np.diag(varCov))     # Standard deviations on the coefficients
+dCoefs = np.sqrt(np.diag(varCov))      # Standard deviations on the coefficients
 
 print("\nCoefficients:")
 for iCoef in range(3):
-    print(iCoef+1,":", coefs[2-iCoef], "+-", dCoeffs[2-iCoef])  # Reverse order w.r.t. polyfit
+    print(iCoef+1,":", coefs[2-iCoef], "+-", dCoefs[2-iCoef])  # Reverse order w.r.t. polyfit
     
 print()
 print("Chi2: ", Chi2)
@@ -203,3 +213,47 @@ plt.close()                             # Close the plot in order to start a new
 
 
 print()
+
+
+
+
+
+
+
+
+
+
+
+
+
+print("\n\nFit with scipy.optimize.curve_fit():")
+x0 = [-3, 0, 5]  # Initial guess for coefficients
+coefs,varCov = curve_fit(optFun2, x, y, p0=x0, sigma=sigmas, method='lm')
+#coefs, varCov, infodict, mesg, ier = curve_fit(optFun2, x, y, p0=x0, sigma=sigmas, method='lm', full_output=True)
+print('coefficients: ', coefs)
+print('variance/covariance: ', varCov)
+dCoefs = np.sqrt(np.diag(varCov))     # Standard deviations on the coefficients
+
+print("\nCoefficients:")
+for iCoef in range(3):
+    print(iCoef+1,":", coefs[2-iCoef], "+-", dCoefs[2-iCoef])  # Reverse order w.r.t. polyfit
+    
+print()
+resids = optFun2(x, *coefs) - y  # Residuals
+Chi2    = sum(resids**2)               # Chi^2
+redChi2 = Chi2/(len(x)-len(coefs))     # Reduced Chi^2 = Chi^2 / (n-m)
+print("Chi2: ", Chi2, res.cost*2)
+print("Red. Chi2: ", redChi2)
+
+print('\nDifference in red. Chi^2: ', abs(redChi20-redChi2))
+ 
+
+# Plot the (last) fit:
+#coefs = [res.x[2], res.x[1], res.x[0]]
+xn = np.linspace(0, 2, 200)
+yn = np.polyval(coefs, xn)
+plt.plot(xn, yn)
+
+print()
+
+
