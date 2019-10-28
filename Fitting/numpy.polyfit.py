@@ -10,20 +10,24 @@ References:
 
 
 import numpy as np
-from scipy.optimize import least_squares
+from scipy.optimize import least_squares, curve_fit, leastsq
 import matplotlib.pyplot as plt
 import math as m
 
 
 # Function for computing residuals:
+def optFun(c, x):
+    return c[0] + c[1] * x + c[2] * x**2
+
 def resFun1(c, x, y):
-    return c[0] + c[1] * x + c[2] * x**2  -  y
+    return optFun(c, x)  -  y
 
 def resFun2(c, x, y, sigmas):
-    return (c[0] + c[1] * x + c[2] * x**2  -  y)/sigmas
+    return (optFun(c, x)  -  y)/sigmas
 
 
 #plt.style.use('dark_background')        # Invert colours
+plt.figure(figsize=(12.5,7))             # Set png size to 1250x700; savefig has default dpi 100
 
 # Create and plot noisy data:
 trueCoefs = [-5, 1, 3]
@@ -148,6 +152,50 @@ plt.plot(xn, yn)
 
 
 
+
+
+print("\n\nFit with scipy.optimize.leastsq():")
+x0 = [-3, 0, 5]  # Initial guess for coefficients
+#coefs, cov_x, infodict, mesg, ier = leastsq( resFun1, x0, args=(x, y), full_output=True )
+coefs, cov_x, infodict, mesg, ier = leastsq( resFun2, x0, args=(x, y, sigmas), full_output=True )
+
+print('Success:      ', ier)
+#print('Message:      ', mesg)
+print('Coefficients: ', coefs)
+#print('Variance/cov: ', cov_x
+
+#residuals = resFun1(coefs, x, y)
+residuals = resFun2(coefs, x, y, sigmas)
+
+Chi2    = sum(residuals**2)            # Chi^2
+redChi2 = Chi2/(len(x)-len(coefs))     # Reduced Chi^2 = Chi^2 / (n-m)
+varCov  = cov_x * redChi2              # Variance-covariance matrix
+dCoeffs = np.sqrt(np.diag(varCov))     # Standard deviations on the coefficients
+
+print("\nCoefficients:")
+for iCoef in range(3):
+    print(iCoef+1,":", coefs[2-iCoef], "+-", dCoeffs[2-iCoef])  # Reverse order w.r.t. polyfit
+    
+print()
+print("Chi2: ", Chi2)
+print("Red. Chi2: ", redChi2)
+
+print('\nDifference in red. Chi^2: ', abs(redChi20-redChi2))
+
+
+# Plot the (last) fit:
+coefs = [res.x[2], res.x[1], res.x[0]]
+xn = np.linspace(0, 2, 200)
+yn = np.polyval(coefs, xn)
+plt.plot(xn, yn)
+
+
+
+
+
+
+
+
 plt.tight_layout()
 #plt.show()
 plt.savefig('numpy.polyfit.png')                 # Save the plot as png
@@ -155,4 +203,5 @@ plt.close()                             # Close the plot in order to start a new
 
 
 print()
+
 
