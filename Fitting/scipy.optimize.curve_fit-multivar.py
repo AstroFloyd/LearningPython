@@ -27,34 +27,36 @@ print("True coefficients: ", trueCoefs)
 print("Sigma: ", sigma)
 
 f = np.poly1d(trueCoefs)
-x = np.linspace(0, 2, 20)
-errors = sigma*np.random.normal(size=len(x))
-y = f(x) + errors
+xDat = np.linspace(0, 2, 20)
+errors = sigma*np.random.normal(size=len(xDat))
+yDat = f(xDat) + errors
 
-# plt.errorbar(x, y, yerr=sigma, fmt='ro')  # Plot red circles with constant error bars
-plt.errorbar(x, y, yerr=errors, fmt='ro')  # Plot red circles with actual error bars
-
+# plt.errorbar(xDat, yDat, yerr=sigma, fmt='ro')  # Plot red circles with constant error bars
+plt.errorbar(xDat, yDat, yerr=errors, fmt='ro')  # Plot red circles with actual error bars
 
 # Array of measurement errors:
-#sigmas = np.ones(len(y))        # Use constant measurement errors, == 1.
-sigmas = np.ones(len(y))*sigma   # Use constant measurement errors, == sigma.
+#sigmas = np.ones(len(yDat))        # Use constant measurement errors, == 1.
+sigmas = np.ones(len(yDat))*sigma   # Use constant measurement errors, == sigma.
 #sigmas = errors                  # Use measurement errors == actual error!
 
 
 
 
 print("\nFit with scipy.optimize.curve_fit():")
-x0 = [-3, 0, 5]  # Initial guess for coefficients
-#coefs,varCov = curve_fit(optFun, x, y, p0=x0, sigma=sigmas, method='lm')
-coefs, varCov, infodict, mesg, ier = curve_fit(optFun, x, y, p0=x0, sigma=sigmas, method='lm', full_output=True)
+coef0 = [-3, 0, 5]  # Initial guess for coefficients
+#coefs,varCov = curve_fit(optFun, xDat, yDat, p0=coef0, sigma=sigmas, method='lm')
+coefs, varCov, infodict, mesg, ier = curve_fit(optFun, xDat, yDat, p0=coef0, sigma=sigmas, method='lm', full_output=True)
 print("Success: ", ier)
-#print('coefficients: ', coefs)
+#print("Success: ", mesg)
+print('coefficients: ', coefs)
 #print('variance/covariance: ', varCov)
+#print("Infodict: ", infodict.keys(), infodict)
+
 dCoefs = np.sqrt(np.diag(varCov))     # Standard deviations on the coefficients
 
-resids  = (optFun(x, *coefs) - y)/sigmas    # Weighted residuals
+resids  = (optFun(xDat, *coefs) - yDat)/sigmas    # Weighted residuals
 Chi2    = sum(resids**2)                    # Chi^2
-redChi2 = Chi2/(len(x)-len(coefs))          # Reduced Chi^2 = Chi^2 / (n-m)
+redChi2 = Chi2/(len(xDat)-len(coefs))          # Reduced Chi^2 = Chi^2 / (n-m)
 print("Chi2: ", Chi2)
 print("Red. Chi2: ", redChi2)
 print("Coefficients:")
@@ -65,9 +67,9 @@ for iCoef in range(3):
 
 
 # Plot the fit:
-xn = np.linspace(0, 2, 200)
-yn = np.polyval([coefs[2],coefs[1],coefs[0]], xn)
-plt.plot(xn, yn)
+xFit = np.linspace(0, 2, 200)
+yFit = np.polyval([coefs[2],coefs[1],coefs[0]], xFit)
+#plt.plot(xFit, yFit)
 
 plt.tight_layout()
 #plt.show()
