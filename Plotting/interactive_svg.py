@@ -161,4 +161,4 @@ css.text = css.text + "g {-webkit-transition:opacity 0.4s ease-out;" + \
 # Insert the script and save to file.
 tree.insert(0, ET.XML(script))
 
-ET.ElementTree(tree).write("svg_histogram.svg")
+ET.ElementTree(tree).write("interactive_histogram.svg")

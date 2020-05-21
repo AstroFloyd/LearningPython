@@ -111,4 +111,4 @@ script = """
 
 # Insert the script at the top of the file and save it.
 tree.insert(0, ET.XML(script))
-ET.ElementTree(tree).write('svg_tooltip.svg')
+ET.ElementTree(tree).write('interactive_tooltip.svg')
