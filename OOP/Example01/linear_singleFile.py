@@ -7,29 +7,24 @@
 import sys
 
 
+def token_of(line):
+    return line.partition(':')[-1].strip()
+
+
 def main():
     tokenList = open(sys.argv[1], 'r')
     cleanedInput = []
     prevLine = 0
 
     for line in tokenList:
-
         if line.startswith('LINE:'):
-            lineNo = int(line.split(':', 1)[1].strip())
+            lineNo = int(token_of(line))
             diff = lineNo - prevLine - 1
-
-            if diff == 0:
-                cleanedInput.append('\n')
-            if diff == 1:
-                cleanedInput.append('\n\n')
-            else:
-                cleanedInput.append('\n' * diff)
-
+            cleanedInput.append('\n' * (diff if diff>1 else diff+1))
             prevLine = lineNo
-            continue
-
-        cleanedLine = line.split(':', 1)[1].strip()
-        cleanedInput.append(cleanedLine + ' ')
+        else:
+            cleanedLine = token_of(line)
+            cleanedInput.append(cleanedLine + ' ')
 
     print(cleanedInput)
 
