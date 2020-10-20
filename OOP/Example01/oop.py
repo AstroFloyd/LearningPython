@@ -9,7 +9,7 @@ class FileParser(object):
     def __init__(self, filename):
         self.tokenList = open(filename, 'r')
 
-    def cleaned_input(self):
+    def clean_input(self):
         cleanedInput = []
         prevLine = 0
 

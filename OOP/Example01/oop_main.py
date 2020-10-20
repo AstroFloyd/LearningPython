@@ -10,7 +10,7 @@ import oop
 
 def main():
     thefile = oop.FileParser(sys.argv[1])
-    print(thefile.cleaned_input())
+    print(thefile.clean_input())
 
     
 if __name__ == '__main__':
