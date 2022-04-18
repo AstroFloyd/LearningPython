@@ -2,6 +2,9 @@
 
 # https://stackoverflow.com/a/32427177/1386750
 
+import colored_traceback
+colored_traceback.add_hook()
+
 import numpy as np
 import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
@@ -58,18 +61,18 @@ z = rad * np.outer(np.ones(np.size(phi)), np.cos(theta))
 # Plot hemisphere/dome surface:
 ax.plot_surface(x, y, z,  rstride=2, cstride=4, color='b', linewidth=0, alpha=aDome)
 
-# ### HORIZON ###
+# ### HORIZON/GROUND ###
 # Plot whole horizon:
 # ax.plot(np.sin(phi), np.cos(phi), 0,  color='g', alpha=1.0)
 
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-verts = [list(zip(np.sin(phi), np.cos(phi), zeros ))]  # list() needed for zip() in Python3
-poly = Poly3DCollection(verts)
-poly.set_facecolor('g')
-# poly.set_facecolor('#280')
-poly.set_alpha(aGrnd)  # No effect?  There is now...
-poly.set_zorder(zGrnd)
-ax.add_collection3d(poly)
+ground_verts = [list(zip(np.sin(phi), np.cos(phi), zeros ))]  # list() needed for zip() in Python3
+ground = Poly3DCollection(ground_verts)
+ground.set_facecolor('g')
+# ground.set_facecolor('#280')
+ground.set_alpha(aGrnd)  # No effect?  There is now...
+ground.set_zorder(zGrnd)
+ax.add_collection3d(ground)
 
 # Horizon line and label:
 ax.plot(np.sin(hphi1+vpAz), np.cos(hphi1+vpAz), 0,  color='k', alpha=aLine, zorder=zDome)  # Foreground
