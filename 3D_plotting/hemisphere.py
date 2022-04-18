@@ -14,11 +14,6 @@ vpAz  = -20.0 * d2r
 # vpAlt = 90.0 * d2r
 # vpAz  = 0.0 * d2r
 
-
-# Setup plot:
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d',computed_zorder=False)
-
 # Colours:
 clrSun = '#FF0'
 
@@ -41,10 +36,17 @@ zDomelbl = 21
 zExt     = 90
 
 
+
+
+# Setup plot:
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d',computed_zorder=False)
+
 # ### HEMISPHERE ###
 # Create a hemisphere/dome:
 rad = 1
 phi   = np.linspace(0, 2*np.pi, 100)  # Azimuthal coordinate
+zeros = np.zeros(len(phi))            # X/Y/Z plane
 hphi1 = np.linspace(0,   np.pi,  50)  # Half of phi, for half a circle
 hphi2 = hphi1 + pi                    # The other half
 theta = np.linspace(0, np.pi/2,  50)  # Altitude coordinate (0-90 only)
@@ -61,7 +63,6 @@ ax.plot_surface(x, y, z,  rstride=2, cstride=4, color='b', linewidth=0, alpha=aD
 # ax.plot(np.sin(phi), np.cos(phi), 0,  color='g', alpha=1.0)
 
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-zeros = np.zeros(len(phi))
 verts = [list(zip(np.sin(phi), np.cos(phi), zeros ))]  # list() needed for zip() in Python3
 poly = Poly3DCollection(verts)
 poly.set_facecolor('g')

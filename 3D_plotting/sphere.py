@@ -5,64 +5,77 @@
 import numpy as np
 import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
-from astroconst import r2d,d2r
+from astroconst import pi, r2d,d2r
 import matplotlib.patches as patch
 
 # Choose projection:
 vpAlt = 10.0 * d2r
 vpAz  = -20.0 * d2r
 
+# Line styles:
+lsFg = '-'   # Foreground: solid
+lsBg = '-'  # Background: dashed
+
+# Line widths:
+lwArc = 3  # Arcs
+lwArr = 2  # Arrows
+lwFg  = 2  # Foreground
+lwBg  = lwFg * 0.6  # Background
+
+# Alphas:
+aArr  = 1.0  # For arrows/arcs
+aLine = 0.7  # For lines
+aLineBg = aLine*0.6  # For background lines
+aLbl  = 1.0  # For labels
+aPlan = 0.7  # Equatorial plane
+aSphr = 0.5  # Sphere
+
+# z orders:
+zPlan    = 10
+zPlanlbl = 11
+zSphr    = 20
+zSphrlbl = 21
+zExt     = 90
+
 
 # Setup plot:
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(111, projection='3d', computed_zorder=False)
 
 
 # ### SPHERE ###
 # Create a sphere:
-r = 1
+rr = 1
 phi   = np.linspace(0, 2*np.pi, 100)  # Azimuthal coordinate
-hphi  = np.linspace(0,   np.pi, 50)   # Half of phi, for half a circle
+hphi1 = np.linspace(0,   np.pi,  50)  # Half of phi, for half a circle
+hphi2 = hphi1 + pi                    # The other half 
 theta = np.linspace(0,   np.pi, 100)  # Altitude coordinate
 
-x = r * np.outer(np.cos(phi), np.sin(theta))
-y = r * np.outer(np.sin(phi), np.sin(theta))
-z = r * np.outer(np.ones(np.size(phi)), np.cos(theta))
+xx = rr * np.outer(np.cos(phi), np.sin(theta))
+yy = rr * np.outer(np.sin(phi), np.sin(theta))
+zz = rr * np.outer(np.ones(np.size(phi)), np.cos(theta))
 
 # Plot sphere surface:
-ax.plot_surface(x, y, z,  rstride=2, cstride=4, color='b', linewidth=0, alpha=0.5)
+ax.plot_surface(xx, yy, zz,  rstride=2, cstride=4, color='b', linewidth=0, alpha=aSphr, zorder=zSphr)
 
 
 # ### EQUATOR ###
-# Plot whole equator, dashed:
-ax.plot(np.sin(phi), np.cos(phi), 0,  color='k', linestyle='dashed')  # Circle with z=0
-
-# Overplot equator, front:
-ax.plot( np.sin(hphi-vpAz), np.cos(hphi-vpAz), 0, color='k')  # Circle with z=0
+# Plot equator: front half solid, back half dashed:
+ax.plot( np.sin(hphi1-vpAz), np.cos(hphi1-vpAz), 0, linestyle=lsFg, lw=lwFg, color='k', alpha=aLine,   zorder=zSphrlbl)  # Circle with z=0
+ax.plot( np.sin(hphi2-vpAz), np.cos(hphi2-vpAz), 0, linestyle=lsBg, lw=lwBg, color='k', alpha=aLineBg, zorder=zSphrlbl)  # Circle with z=0
 
 # Plot equatorial plane:
-eqpl = np.vstack([np.sin(hphi-vpAz), np.cos(hphi-vpAz)]).transpose()
-print(np.shape(eqpl))
+eqpl = np.vstack([np.sin(phi-vpAz), np.cos(phi-vpAz)]).transpose()
+# print(np.shape(eqpl))
 poly = patch.Polygon(eqpl, alpha=0.5, edgecolor=None)  # use transparency?
 # plt.gca().add_patch(poly)
 # ax.add_patch(poly)  # Same?
 
 
 # ### MERIDIAN ###
-# Calculate vectors for meridian:
-# a = np.array([-np.sin(vpAlt), 0, np.cos(vpAlt)])
-# b = np.array([0, 1, 0])
-# b = b * np.cos(vpAz) + np.cross(a, b) * np.sin(vpAz) + a * np.dot(a, b) * (1 - np.cos(vpAz))
-
-# # Plot whole meridian, dashed:
-# ax.plot( a[0]*np.sin(phi) + b[0]*np.cos(phi),  b[1]*np.cos(phi),  a[2]*np.sin(phi) + b[2]*np.cos(phi),  color='k', linestyle='dashed')
-
-# # Overplot meridian, front:
-# meri_front = np.linspace(1/2*np.pi, 3/2*np.pi, 100)  # 1/2 pi - 3/2 pi
-# ax.plot( a[0]*np.sin(meri_front) + b[0]*np.cos(meri_front),  b[1]*np.cos(meri_front),  a[2]*np.sin(meri_front) + b[2]*np.cos(meri_front), color='k')
-
-ax.plot(np.sin(phi), np.zeros(len(phi)), np.cos(phi),  color='k', linestyle='dashed')  # Circle with y=0
-ax.plot(np.sin(hphi), np.zeros(len(hphi)), np.cos(hphi),  color='k')  # Half a circle with y=0
+# Plot meridian (circle at y=0): front half: solid, background half dashed:
+ax.plot(np.sin(hphi1-vpAlt), np.zeros(len(hphi1)), np.cos(hphi1-vpAlt), linestyle=lsFg, lw=lwFg, color='k', alpha=aLine,   zorder=zSphrlbl)
+ax.plot(np.sin(hphi2-vpAlt), np.zeros(len(hphi2)), np.cos(hphi2-vpAlt), linestyle=lsBg, lw=lwBg, color='k', alpha=aLineBg, zorder=zSphrlbl)
 
 
 
@@ -73,7 +86,7 @@ ax.axis('off')
 
 
 # Force narrow margins:
-pllim = r*0.6
+pllim = rr*0.6
 
 ax.set_box_aspect([1,1,1])    # Was ax.set_aspect('equal'), no longer works:  Set axes to a 'square grid'
 
@@ -82,9 +95,9 @@ ax.set_ylim3d(-pllim,pllim)
 ax.set_zlim3d(-pllim,pllim)
 
 
-plt.show()
+# plt.show()
 plt.tight_layout()
 plt.savefig('sphere.png')
 plt.close()
-
+print('Done')
 
