@@ -72,23 +72,25 @@ def rotate3d(xx,yy,zz, vpAz,vpAlt):
 
 
 def plot_line(xx,yy,zz, lss, lws, clrs, alphas, zorders):
-    xx1,yy1,zz1 = rotate3d(xx,yy,zz, vpAz,vpAlt)
+    
+    xx1,yy1,zz1 = rotate3d(xx,yy,zz, vpAz,-vpAlt)
     
     # ax.plot( xx[zz1>0], yy[zz1>0], zz[zz1>0], linestyle=lss[0], lw=lws[0], color=clrs[0], alpha=alphas[0], zorder=zorders[0])
     # ax.plot( xx[zz1<0], yy[zz1<0], zz[zz1<0], linestyle=lss[1], lw=lws[1], color=clrs[1], alpha=alphas[1], zorder=zorders[1])
     
     # Select the part of the line that is in the FOREGROUND:
-    xx2 = xx[zz1>0]
-    yy2 = yy[zz1>0]
-    zz2 = zz[zz1>0]
+    xx2 = xx[xx1>0]
+    yy2 = yy[xx1>0]
+    zz2 = zz[xx1>0]
     
-    # Find the largest 3D step made in the foreground.  Assume it is the location of the jump:
+    # Find the largest 3D step made in the foreground.  Assume that this indicates the location of the jump:
     step2 = np.square(np.diff(xx2)) + np.square(np.diff(yy2)) + np.square(np.diff(zz2))  # Δr^2 = Δx^2 + Δy^2 + Δz^2
     smax  = np.amax(step2)    # Maximum step
     imax  = np.argmax(step2)  # Index where the maximum step is made
     # print(step2, imax)
     # print(imax, xx2[imax:imax+2])
-        
+    # print(imax, smax)
+    
     if smax > 0.3:  # Glue the part after the jump to the part before the jump
         xx3 = np.hstack((xx2[imax+1:],xx2[0:imax+1]))
         yy3 = np.hstack((yy2[imax+1:],yy2[0:imax+1]))
@@ -103,9 +105,9 @@ def plot_line(xx,yy,zz, lss, lws, clrs, alphas, zorders):
     
     
     # Select the part of the line that is in the BACKGROUND:
-    xx2 = xx[zz1<0]
-    yy2 = yy[zz1<0]
-    zz2 = zz[zz1<0]
+    xx2 = xx[xx1<0]
+    yy2 = yy[xx1<0]
+    zz2 = zz[xx1<0]
     
     # Find the largest 3D step made in the background.  Assume it is the location of the jump:
     step2 = np.square(np.diff(xx2)) + np.square(np.diff(yy2)) + np.square(np.diff(zz2))  # Δr^2 = Δx^2 + Δy^2 + Δz^2
@@ -189,6 +191,7 @@ ax.add_collection3d(plane)
 # ax.plot( np.sin(hphi1-vpAz), np.cos(hphi1-vpAz), 0, linestyle=lsFg, lw=lwFg, color='k', alpha=aLine,   zorder=zSphrlbl)  # Circle with z=0
 # ax.plot( np.sin(hphi2-vpAz), np.cos(hphi2-vpAz), 0, linestyle=lsBg, lw=lwBg, color='k', alpha=aLineBg, zorder=zSphrlbl)  # Circle with z=0
 
+# Circle in the x-y plane:
 xx = np.sin(phi)
 yy = np.cos(phi)
 zz = zeros
@@ -207,24 +210,17 @@ poly = patch.Polygon(eqpl, alpha=0.5, edgecolor=None)  # use transparency?
 
 
 # ### MERIDIAN ###
-# Plot meridian (circle at y=0; x-z plane): front half: solid, background half dashed:
-ax.plot(np.sin(hphi1), hzeros, np.cos(hphi1), linestyle=lsFg, lw=lwFg, color='k', alpha=aLine,   zorder=zSphrlbl)
-ax.plot(np.sin(hphi2), hzeros, np.cos(hphi2), linestyle=lsBg, lw=lwBg, color='k', alpha=aLineBg, zorder=zSphrlbl)
-
-
-
-
-
-
+# Plot meridian (circle at y=0; x-z plane):
+# Circle in the x-z plane:
+xx = np.sin(phi)
+yy = zeros
+zz = np.cos(phi)
+plot_line(xx,yy,zz, [lsFg,lsBg], [lwFg,lwBg], ['k','k'], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
 
 
 # Plot Earth dot and label:
 ax.plot([0],[0],[0], 'o', color='w', alpha=aLine, zorder=zPlanlbl)
 ax.text(0,0,0,  'Earth ', ha='right', size='xx-large', weight='bold', va='center', color='w', alpha=aLbl, zorder=zPlanlbl)
-
-# # Plot meridian:
-# meri_front = np.linspace(0, 1/2*np.pi, 100)  # 0 - 1/2 pi + vpAlt
-# ax.plot( np.zeros(len(meri_front)), np.cos(meri_front), np.sin(meri_front), '--', color='k', alpha=aLine, zorder=zSphrlbl)
 
 # x axis: line observer - foot meridian:
 ax.plot([0,2.5],[0,0], '--', color='k', alpha=aLine, zorder=zPlanlbl)
@@ -245,6 +241,17 @@ ax.text(0,0,-1.15, 'SP ', ha='right', size='xx-large', weight='bold', va='center
 
 # Cardinal points:
 ax.text(0,0, 1.1, ' z', ha='left', size='x-large', va='center', color='k', alpha=aLbl, zorder=zPlanlbl)
+
+
+
+# Plot Ecliptic:
+# Circle in the x-y plane:
+xx = np.sin(phi)
+yy = np.cos(phi)
+zz = zeros
+xx,yy,zz = rot2d_x( xx, yy, zz, -23*d2r)   # 1. Rotate 23° about the x-axis
+
+plot_line(xx,yy,zz, [lsFg,lsBg], [lwFg,lwBg], ['y','y'], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
 
 
 
