@@ -40,7 +40,7 @@ aLineBg = aLine*bgfac  # For background lines
 aLbl    = 1.0  # For labels
 aLblBg  = aLbl*bgfac  # For labels
 aPlan   = 0.5  # Equatorial/ecliptic plane
-aSphr   = 0.2  # Sphere
+aSphr   = 0.1  # Sphere
 aEarth  = 1.0  # Earth ball
 
 # z orders:
@@ -51,7 +51,7 @@ zSphrlbl = 21
 zEarth   = 80
 zExt     = 90
 
-eps = 23*d2r  # Obliquity of the ecliptic
+eps = 23.439*d2r  # Obliquity of the ecliptic
 
 
 
@@ -263,8 +263,17 @@ ax.add_collection3d(plane)
 plot_line(ax, xx,yy,zz, vpAz,vpAlt, [lsFg,lsBg], [lwFg,lwBg], [cEq,cEq], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
 
 
+# Mark angle epsilon between equator and ecliptic:
+rr = 0.17
+xx = rr*zeros + 0.985    # Circle in y-z plane, around Aries (1,0,0)
+yy = rr*np.cos(phin*eps)
+zz = rr*np.sin(phin*eps)
+plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], [cEcl,cEcl], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+plot_text(ax, xx[65],yy[65],zz[70], vpAz,vpAlt, r' $\varepsilon$  ', 'x-large', 'bold', 'left','center', [cEcl,cEcl], [aLbl,aLblBg], [zSphr,zSphr])
 
 
+
+print(np.arccos(1-rr))
 
 
 
@@ -284,8 +293,8 @@ ax.plot_surface(rSph*xSph, rSph*ySph, rSph*zSph,  rstride=2, cstride=4, color=cE
 ax.text(0,0,0,  'Earth  ', ha='right', size='xx-large', weight='bold', va='center', color=cEarth, alpha=aLbl, zorder=zPlanlbl)
 
 # Compute and plot equator (circle in the x-y plane):
-xx = rSph*np.sin(hphi1)  # Note: x/y swapped
-yy = rSph*np.cos(hphi1)
+xx = rSph*np.sin(hphi1-vpAz)  # Note: x/y swapped
+yy = rSph*np.cos(hphi1-vpAz)
 zz = hzeros
 plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-',lsBg], [lwBg,lwBg], ['w','w'], [aLine,aLineBg], [zExt,zExt])
 
@@ -293,10 +302,11 @@ plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-',lsBg], [lwBg,lwBg], ['w','w'], [aLine,a
 
 # x-axis: line observer - spring/aries point:
 # ax.plot([0,2.5],[0,0], '--', color='k', alpha=aLine, zorder=zPlanlbl)
-ax.text(1,0,0, 'S', ha='left', size='xx-large', weight='bold', va='top', zorder=zExt)
 # ax.text(2.2,0, 0, 'x', ha='left', size='x-large', va='center', color='k', alpha=aLbl, zorder=zPlanlbl)
 
 ax.plot([-1,1],[0,0], '--', color='k', alpha=aLineBg, zorder=zPlanlbl)  # Intersection equatorial-ecliptical planes
+ax.plot([1],[0],[0], 'o', color='k', alpha=aLine,   zorder=zExt)  # Plot dot north pole
+ax.text(1,0,0, 'S', ha='left', size='xx-large', weight='bold', va='top', zorder=zExt)
 
 
 # # y-axis: line observer - [0,1,0]:
@@ -304,12 +314,14 @@ ax.plot([-1,1],[0,0], '--', color='k', alpha=aLineBg, zorder=zPlanlbl)  # Inters
 # ax.text(0,1.3,0, 'y', ha='left', size='x-large', va='center', color='k', alpha=aLbl, zorder=zPlanlbl)
 
 
-# Plot north pole, line NP-observer-SP and labels 'NP','SP':
-ax.plot([0],[0], [1], 'o', color='k', alpha=aLine,   zorder=zPlanlbl)  # Plot dot north pole
-ax.plot([0],[0],[-1], 'o', color='k', alpha=aLineBg, zorder=zPlanlbl)  # Plot dot south pole
+# Plot north pole, rotation axis and labels 'NP','SP':
 ax.plot([0,0],[0,0],[-1.5,1.5], '--', color='k', alpha=aLine, zorder=zPlanlbl)
+
 ax.text(0,0, 1.1,  'NP ', ha='right', size='xx-large', weight='bold', va='center', color='k', alpha=aLbl, zorder=zPlanlbl)
+ax.plot([0],[0], [1], 'o', color='k', alpha=aLine,   zorder=zPlanlbl)  # Plot dot north pole
+
 ax.text(0,0,-1., ' SP', ha='left', size='xx-large', weight='bold', va='center', color='k', alpha=aLblBg, zorder=-1)
+ax.plot([0],[0],[-1], 'o', color='k', alpha=aLineBg, zorder=zPlanlbl)  # Plot dot south pole
 
 # Cardinal points:
 # ax.text(0,0, 1.1, ' z', ha='left', size='x-large', va='center', color='k', alpha=aLbl, zorder=zPlanlbl)
@@ -351,19 +363,6 @@ zz = zeros
 plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], [cEq,cEq], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
 plot_text(ax, xx[50],yy[50],zz[50]-0.02, vpAz,vpAlt, r'$\alpha$', 'x-large', 'bold', 'center','top', [cEq,cEq], [aLbl,aLblBg], [zSphr,zSphr])
 
-# # Plot arrow 'right ascension' angle and add label 'A':
-# rr = 0.4
-# ax.plot(rr*np.sin(arr), rr*np.cos(arr), rr*0,  color='k', alpha=aArr, lw=lwArr, zorder=zPlanlbl)
-# ax.text( rr*np.sin(raSt/2), rr*np.cos(raSt/2), rr*0, '  A', ha='left', size='large', va='top', color='k', alpha=aArr, zorder=zPlanlbl)
-
-
-
-
-# # Plot arrow 'declination' angle and add label 'h':
-# rr = 0.2
-# ax.plot( rr*np.sin(raSt)*np.cos(meri_front), rr*np.cos(raSt)*np.cos(meri_front), rr*np.sin(meri_front), '-', color='k', alpha=aArr, lw=lwArr, zorder=zPlanlbl)
-# ax.text( rr*np.sin(raSt)*np.cos(decSt/2), rr*np.cos(raSt)*np.cos(decSt/2), rr*np.sin(decSt/2), ' h', ha='left', size='large', va='center', color='k', alpha=aArr, zorder=zPlanlbl)
-
 
 
 
@@ -389,7 +388,7 @@ yy = np.sin(phin*lSt)
 zz = zeros
 xx,yy,zz = rot2d_x( xx, yy, zz, -eps)   # 1. Rotate over eps about the x-axis
 plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], [cEcl,cEcl], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
-plot_text(ax, xx[50],yy[50],zz[50]-0.02, vpAz,vpAlt, r'$\ell$', 'x-large', 'bold', 'center','top', [cEcl,cEcl], [aLbl,aLblBg], [zSphr,zSphr])
+plot_text(ax, xx[50],yy[50],zz[50]-0.02, vpAz,vpAlt, r'$l$', 'x-large', 'bold', 'center','top', [cEcl,cEcl], [aLbl,aLblBg], [zSphr,zSphr])
 
 
 
@@ -414,6 +413,7 @@ ax.set_zlim3d(-pllim/scale,pllim/scale)
 # plt.show()
 plt.tight_layout()
 plt.savefig('sphere.png')
+plt.savefig('sphere.pdf')
 plt.close()
 print('Done')
 
