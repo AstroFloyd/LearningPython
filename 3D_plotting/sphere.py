@@ -18,6 +18,7 @@ vpAz  = 15.0 * d2r
 # Colours:
 cStar  = '#FF0'  # (bright) yellow
 cEarth = '#0B0'  # Green
+cEq    = '#F00'  # Bright red
 cEcl   = '#0FF'  # (bright) cyan
 
 
@@ -51,6 +52,7 @@ zEarth   = 80
 zExt     = 90
 
 eps = 23*d2r  # Obliquity of the ecliptic
+
 
 
 def rot2d_x(xx,yy,zz, theta):
@@ -219,7 +221,7 @@ plane.set_zorder(zPlan)
 ax.add_collection3d(plane)
 
 # Plot equator (circle in the x-y plane):
-plot_line(ax, xx,yy,zz, vpAz,vpAlt, [lsFg,lsBg], [lwFg,lwBg], ['r','r'], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+plot_line(ax, xx,yy,zz, vpAz,vpAlt, [lsFg,lsBg], [lwFg,lwBg], [cEq,cEq], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
 
 
 
@@ -258,7 +260,7 @@ plane.set_zorder(zPlan)
 ax.add_collection3d(plane)
 
 # Plot equator (circle in the x-y plane):
-plot_line(ax, xx,yy,zz, vpAz,vpAlt, [lsFg,lsBg], [lwFg,lwBg], ['r','r'], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+plot_line(ax, xx,yy,zz, vpAz,vpAlt, [lsFg,lsBg], [lwFg,lwBg], [cEq,cEq], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
 
 
 
@@ -336,17 +338,18 @@ xx = np.cos(phin*decSt)
 yy = zeros
 zz = np.sin(phin*decSt)
 xx,yy,zz = rot2d_z( xx, yy, zz, -raSt)   # 1. Rotate RA about the z-axis
-plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], ['r','r'], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], [cEq,cEq], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+plot_text(ax, xx[50],yy[50],zz[50], vpAz,vpAlt, r'$\delta$  ', 'x-large', 'bold', 'right','top', [cEq,cEq], [aLbl,aLblBg], [zSphr,zSphr])
 
 # Line observer - foot equatorial 'meridian' star:
-plot_line(ax, np.array([0,xx[0]]),np.array([0,yy[0]]),np.array([0,zz[0]]), vpAz,vpAlt, [':',':'], [lwFg,lwBg], ['r','r'], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+plot_line(ax, np.array([0,xx[0]]),np.array([0,yy[0]]),np.array([0,zz[0]]), vpAz,vpAlt, [':',':'], [lwFg,lwBg], [cEq,cEq], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
 
 # Plot arc 'right ascension' star on equator:
 xx = np.cos(phin*raSt)
 yy = np.sin(phin*raSt)
 zz = zeros
-plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], ['r','r'], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
-
+plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], [cEq,cEq], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+plot_text(ax, xx[50],yy[50],zz[50]-0.02, vpAz,vpAlt, r'$\alpha$', 'x-large', 'bold', 'center','top', [cEq,cEq], [aLbl,aLblBg], [zSphr,zSphr])
 
 # # Plot arrow 'right ascension' angle and add label 'A':
 # rr = 0.4
@@ -368,13 +371,14 @@ plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], ['r','r'], [aLin
 lSt,bSt = eq2ecl(raSt,decSt, eps)
 raSt1,decSt1 = ecl2eq(lSt, 0, eps)  # (l=lSt,b=0)
 
-# Plot 'ecliptic meridian' star:
+# Plot 'ecliptic meridian' (latitude) star:
 xx = np.cos(phin*bSt)
 yy = zeros
 zz = np.sin(phin*bSt)
 xx,yy,zz = rot2d_z( xx, yy, zz, -lSt)   # 1. Rotate the longitude about the x-axis
 xx,yy,zz = rot2d_x( xx, yy, zz, -eps)   # 1. Rotate over eps about the x-axis
 plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], [cEcl,cEcl], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+plot_text(ax, xx[50],yy[50],zz[50], vpAz,vpAlt, r'$b$', 'x-large', 'bold', 'left','bottom', [cEcl,cEcl], [aLbl,aLblBg], [zSphr,zSphr])
 
 # Plot line observer - 'ecliptic meridian' star:
 plot_line(ax, np.array([0,xx[0]]), np.array([0,yy[0]]), np.array([0,zz[0]]), vpAz,vpAlt, [':',':'], [lwFg,lwBg], [cEcl,cEcl], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
@@ -385,6 +389,7 @@ yy = np.sin(phin*lSt)
 zz = zeros
 xx,yy,zz = rot2d_x( xx, yy, zz, -eps)   # 1. Rotate over eps about the x-axis
 plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], [cEcl,cEcl], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+plot_text(ax, xx[50],yy[50],zz[50]-0.02, vpAz,vpAlt, r'$\ell$', 'x-large', 'bold', 'center','top', [cEcl,cEcl], [aLbl,aLblBg], [zSphr,zSphr])
 
 
 
