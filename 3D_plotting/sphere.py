@@ -22,7 +22,7 @@ cEcl   = '#0FF'  # (bright) cyan
 
 
 # Line styles:
-lsFg = '--'   # Foreground: solid
+lsFg = '--'  # Foreground: solid
 lsBg = '--'  # Background: dashed
 
 # Line widths:
@@ -47,8 +47,8 @@ zPlan    = 10
 zPlanlbl = 11
 zSphr    = 20
 zSphrlbl = 21
+zEarth   = 80
 zExt     = 90
-zEarth   = 90
 
 eps = 23*d2r  # Obliquity of the ecliptic
 
@@ -204,11 +204,11 @@ zSph = np.outer(np.ones(np.size(phi)), np.cos(theta))
 ax.plot_surface(xSph, ySph, zSph,  rstride=2, cstride=4, color='b', linewidth=0, alpha=aSphr, zorder=zSphr)
 
 
-# ### EQUATOR ###
+# ### EQUATOR 1/2 ###
 # Compute equatorial plane:
-xx = np.cos(phi)
-yy = np.sin(phi)
-zz = zeros
+xx = np.cos(hphi1)
+yy = np.sin(hphi1)
+zz = hzeros
 
 # Plot equatorial plane:
 plane_verts = [list(zip( xx, yy, zz ))]  # list() needed for zip() in Python3
@@ -220,6 +220,50 @@ ax.add_collection3d(plane)
 
 # Plot equator (circle in the x-y plane):
 plot_line(ax, xx,yy,zz, vpAz,vpAlt, [lsFg,lsBg], [lwFg,lwBg], ['r','r'], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+
+
+
+# ### ECLIPTIC ###
+# Create ecliptic (circle in the x-y plane, rotated about epsilon):
+xx = np.cos(phi)  # cos RA
+yy = np.sin(phi)  # sin RA
+zz = zeros
+xx,yy,zz = rot2d_x( xx, yy, zz, -eps)   # 1. Rotate 23° about the x-axis
+
+# Plot ecliptic plane:
+plane_verts = [list(zip( xx, yy, zz ))]  # list() needed for zip() in Python3
+plane = Poly3DCollection(plane_verts)
+plane.set_facecolor(cEcl)
+plane.set_alpha(aLine)
+plane.set_zorder(zPlan)
+ax.add_collection3d(plane)
+
+# Plot Ecliptic (circle in the x-y plane, rotated about epsilon):
+plot_line(ax, xx,yy,zz, vpAz,vpAlt, [lsFg,lsBg], [lwFg,lwBg], [cEcl,cEcl], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+
+
+
+# ### EQUATOR 2/2 ###
+# Compute equatorial plane:
+xx = np.cos(hphi2)
+yy = np.sin(hphi2)
+zz = hzeros
+
+# Plot equatorial plane:
+plane_verts = [list(zip( xx, yy, zz ))]  # list() needed for zip() in Python3
+plane = Poly3DCollection(plane_verts)
+plane.set_facecolor('#F88')  # Reddish
+plane.set_alpha(aPlan)
+plane.set_zorder(zPlan)
+ax.add_collection3d(plane)
+
+# Plot equator (circle in the x-y plane):
+plot_line(ax, xx,yy,zz, vpAz,vpAlt, [lsFg,lsBg], [lwFg,lwBg], ['r','r'], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+
+
+
+
+
 
 
 # ### MERIDIAN ###
@@ -236,6 +280,14 @@ plot_line(ax, xx,yy,zz, vpAz,vpAlt, [lsFg,lsBg], [lwFg,lwBg], ['k','k'], [aLine,
 rSph = 0.05
 ax.plot_surface(rSph*xSph, rSph*ySph, rSph*zSph,  rstride=2, cstride=4, color=cEarth, linewidth=0, alpha=aEarth, zorder=zEarth)
 ax.text(0,0,0,  'Earth  ', ha='right', size='xx-large', weight='bold', va='center', color=cEarth, alpha=aLbl, zorder=zPlanlbl)
+
+# Compute and plot equator (circle in the x-y plane):
+xx = rSph*np.sin(hphi1)  # Note: x/y swapped
+yy = rSph*np.cos(hphi1)
+zz = hzeros
+plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-',lsBg], [lwBg,lwBg], ['w','w'], [aLine,aLineBg], [zExt,zExt])
+
+
 
 # x-axis: line observer - spring/aries point:
 # ax.plot([0,2.5],[0,0], '--', color='k', alpha=aLine, zorder=zPlanlbl)
@@ -262,25 +314,6 @@ ax.text(0,0,-1., ' SP', ha='left', size='xx-large', weight='bold', va='center', 
 
 
 
-# ### ECLIPTIC ###
-# Create ecliptic (circle in the x-y plane, rotated about epsilon):
-xx = np.cos(phi)  # cos RA
-yy = np.sin(phi)  # sin RA
-zz = zeros
-xx,yy,zz = rot2d_x( xx, yy, zz, -eps)   # 1. Rotate 23° about the x-axis
-
-# Plot ecliptic plane:
-plane_verts = [list(zip( xx, yy, zz ))]  # list() needed for zip() in Python3
-plane = Poly3DCollection(plane_verts)
-plane.set_facecolor(cEcl)
-plane.set_alpha(aLine)
-plane.set_zorder(zPlan)
-ax.add_collection3d(plane)
-
-# Plot Ecliptic (circle in the x-y plane, rotated about epsilon):
-plot_line(ax, xx,yy,zz, vpAz,vpAlt, [lsFg,lsBg], [lwFg,lwBg], [cEcl,cEcl], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
-
-
 
 # STAR:
 # Plot yellow star + label:
@@ -295,10 +328,10 @@ plot_text( ax, xst,yst,zst, vpAz,vpAlt, ' Star', 'xx-large','bold', 'left','bott
 
 
 
-# # Plot line observer - star:
+# Plot line observer - star:
 plot_line(ax, np.array([0,xst]),np.array([0,yst]),np.array([0,zst]), vpAz,vpAlt, [':',':'], [lwFg,lwBg], [cStar,cStar], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
 
-# Plot equatorial 'meridian' star:
+# Plot equatorial 'meridian' (declination) star:
 xx = np.cos(phin*decSt)
 yy = zeros
 zz = np.sin(phin*decSt)
