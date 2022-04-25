@@ -12,7 +12,7 @@ from astroconst import pi, r2d,d2r
 import matplotlib.patches as patch
 
 # Choose projection:
-vpAlt = 15.0 * d2r
+vpAlt = 20.0 * d2r
 vpAz  = 30.0 * d2r
 
 # Colours:
@@ -73,10 +73,8 @@ def rotate3d(xx,yy,zz, vpAz,vpAlt):
 
 def plot_line(xx,yy,zz, lss, lws, clrs, alphas, zorders):
     
+    # Use projection angles (bit vpAlt has opposite definition?):
     xx1,yy1,zz1 = rotate3d(xx,yy,zz, vpAz,-vpAlt)
-    
-    # ax.plot( xx[zz1>0], yy[zz1>0], zz[zz1>0], linestyle=lss[0], lw=lws[0], color=clrs[0], alpha=alphas[0], zorder=zorders[0])
-    # ax.plot( xx[zz1<0], yy[zz1<0], zz[zz1<0], linestyle=lss[1], lw=lws[1], color=clrs[1], alpha=alphas[1], zorder=zorders[1])
     
     # Select the part of the line that is in the FOREGROUND:
     xx2 = xx[xx1>0]
@@ -114,14 +112,6 @@ def plot_line(xx,yy,zz, lss, lws, clrs, alphas, zorders):
     smax  = np.amax(step2)    # Maximum step
     imax  = np.argmax(step2)  # Index where the maximum step is made.
     
-    # print(len(step2))
-    # print(xx,xx2)
-    # print(imax,smax)
-    # print(xx2,yy2,zz2)
-    # print(step2, imax)
-    # print(imax, xx2[imax:imax+2])
-    # print(xx2)
-    
     # Glue the part after the jump to the part before the jump:
     if smax > 0.3:
         xx3 = np.hstack((xx2[imax+1:],xx2[0:imax+1]))
@@ -138,20 +128,6 @@ def plot_line(xx,yy,zz, lss, lws, clrs, alphas, zorders):
     
     return
 
-    # oldrow = [0,0,0,1]
-    # irow = 0
-    # for row in np.vstack([xx,yy,zz,zz1]).transpose():
-    #     irow += 1
-    #     r = np.sqrt(np.square(row[0]-oldrow[0]) + np.square(row[1]-oldrow[1]) + np.square(row[2]-oldrow[2]))
-    #     # print(irow,row,r)
-    #     if r<0.3:  # or irow==1):
-    #         if(row[3]>0):
-    #             ax.plot( [oldrow[0],row[0]], [oldrow[1],row[1]], [oldrow[2],row[2]], linestyle=lss[0], lw=lws[0], color=clrs[0], alpha=alphas[0], zorder=zorders[0])
-    #         else:
-    #             ax.plot( [oldrow[0],row[0]], [oldrow[1],row[1]], [oldrow[2],row[2]], linestyle=lss[1], lw=lws[1], color=clrs[1], alpha=alphas[1], zorder=zorders[1])
-    #         print(irow,row,r, [oldrow[0],row[0]], [oldrow[1],row[1]], [oldrow[2],row[2]])
-    #     oldrow = row
-    # return
 
 
 # Setup plot:
@@ -187,31 +163,19 @@ plane.set_alpha(aPlan)  # No effect?  There is now...
 plane.set_zorder(zPlan)
 ax.add_collection3d(plane)
 
-# Plot equator: front half solid, back half dashed:
-# ax.plot( np.sin(hphi1-vpAz), np.cos(hphi1-vpAz), 0, linestyle=lsFg, lw=lwFg, color='k', alpha=aLine,   zorder=zSphrlbl)  # Circle with z=0
-# ax.plot( np.sin(hphi2-vpAz), np.cos(hphi2-vpAz), 0, linestyle=lsBg, lw=lwBg, color='k', alpha=aLineBg, zorder=zSphrlbl)  # Circle with z=0
-
-# Circle in the x-y plane:
+# Plot equator (circle in the x-y plane):
 xx = np.sin(phi)
 yy = np.cos(phi)
 zz = zeros
-# xx1,yy1,zz1 = rotate3d(xx,yy,zz, vpAz,vpAlt)
-# ax.plot( xx[zz1>0], yy[zz1>0], zz[zz1>0], linestyle=lsFg, lw=lwFg, color='r', alpha=aLine,   zorder=zSphrlbl)
-# ax.plot( xx[zz1<0], yy[zz1<0], zz[zz1<0], linestyle=lsBg, lw=lwBg, color='r', alpha=aLineBg, zorder=zPlanlbl)
 plot_line(xx,yy,zz, [lsFg,lsBg], [lwFg,lwBg], ['r','r'], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
-# ax.plot(xx1,yy1,zz1, linestyle=lsFg, lw=lwBg, color='r', alpha=aLine, zorder=zSphrlbl)  # Circle with z=0
 
 # Plot equatorial plane:
 eqpl = np.vstack([np.sin(phi-vpAz), np.cos(phi-vpAz)]).transpose()
-# print(np.shape(eqpl))
-poly = patch.Polygon(eqpl, alpha=0.5, edgecolor=None)  # use transparency?
-# plt.gca().add_patch(poly)
-# ax.add_patch(poly)  # Same?
+poly = patch.Polygon(eqpl, alpha=0.5, edgecolor=None)
 
 
 # ### MERIDIAN ###
-# Plot meridian (circle at y=0; x-z plane):
-# Circle in the x-z plane:
+# Plot meridian (circle in the x-z plane):
 xx = np.sin(phi)
 yy = zeros
 zz = np.cos(phi)
@@ -219,8 +183,8 @@ plot_line(xx,yy,zz, [lsFg,lsBg], [lwFg,lwBg], ['k','k'], [aLine,aLineBg], [zSphr
 
 
 # Plot Earth dot and label:
-ax.plot([0],[0],[0], 'o', color='w', alpha=aLine, zorder=zPlanlbl)
-ax.text(0,0,0,  'Earth ', ha='right', size='xx-large', weight='bold', va='center', color='w', alpha=aLbl, zorder=zPlanlbl)
+ax.plot([0],[0],[0], 'o', color='g', alpha=aLine, zorder=zPlanlbl)
+ax.text(0,0,0,  'Earth ', ha='right', size='xx-large', weight='bold', va='center', color='g', alpha=aLbl, zorder=zPlanlbl)
 
 # x axis: line observer - foot meridian:
 ax.plot([0,2.5],[0,0], '--', color='k', alpha=aLine, zorder=zPlanlbl)
@@ -244,14 +208,15 @@ ax.text(0,0, 1.1, ' z', ha='left', size='x-large', va='center', color='k', alpha
 
 
 
-# Plot Ecliptic:
-# Circle in the x-y plane:
+# Plot Ecliptic (circle in the x-y plane, rotated about epsilon):
 xx = np.sin(phi)
 yy = np.cos(phi)
 zz = zeros
 xx,yy,zz = rot2d_x( xx, yy, zz, -23*d2r)   # 1. Rotate 23° about the x-axis
-
 plot_line(xx,yy,zz, [lsFg,lsBg], [lwFg,lwBg], ['y','y'], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+
+
+
 
 
 
