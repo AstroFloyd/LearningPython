@@ -53,6 +53,7 @@ zExt     = 90
 
 eps = 23.439*d2r  # Obliquity of the ecliptic
 
+plotAxes = True  # Plot axes and cardinal points
 
 
 def rot2d_x(xx,yy,zz, theta):
@@ -82,7 +83,7 @@ def rotate3d(xx,yy,zz, vpAz,vpAlt):
     return xx2,yy2,zz2
 
 
-def plot_line(az, xx,yy,zz, vpAz,vpAlt, lss, lws, clrs, alphas, zorders):
+def plot_line(az, xx,yy,zz, vpAz,vpAlt, lss, lws, clrs, alphas, zorders, maxstep=0.3):
     
     # Use projection angles (bit vpAlt has opposite definition?) to find fg/bg:
     xx1,yy1,zz1 = rotate3d(xx,yy,zz, vpAz,-vpAlt)
@@ -101,7 +102,7 @@ def plot_line(az, xx,yy,zz, vpAz,vpAlt, lss, lws, clrs, alphas, zorders):
         # print(imax, xx2[imax:imax+2])
         # print(imax, smax)
         
-        if smax > 0.3:  # Glue the part after the jump to the part before the jump
+        if smax > maxstep:  # Glue the part after the jump to the part before the jump
             xx3 = np.hstack((xx2[imax+1:],xx2[0:imax+1]))
             yy3 = np.hstack((yy2[imax+1:],yy2[0:imax+1]))
             zz3 = np.hstack((zz2[imax+1:],zz2[0:imax+1]))
@@ -126,7 +127,7 @@ def plot_line(az, xx,yy,zz, vpAz,vpAlt, lss, lws, clrs, alphas, zorders):
         imax  = np.argmax(step2)  # Index where the maximum step is made.
         
         # Glue the part after the jump to the part before the jump:
-        if smax > 0.3:
+        if smax > maxstep:
             xx3 = np.hstack((xx2[imax+1:],xx2[0:imax+1]))
             yy3 = np.hstack((yy2[imax+1:],yy2[0:imax+1]))
             zz3 = np.hstack((zz2[imax+1:],zz2[0:imax+1]))
@@ -148,9 +149,9 @@ def plot_point(ax, xx,yy,zz, vpAz,vpAlt, sym, clrs, alphas, zorders):
     xx1,yy1,zz1 = rotate3d(xx,yy,zz, vpAz,-vpAlt)
     
     if xx1>0:  # Plot using foreground attributes:
-        ax.plot( xx, yy, zz, sym, color=clrs[0], alpha=alphas[0], zorder=zorders[0])
+        ax.plot(xx,yy,zz, sym, color=clrs[0], alpha=alphas[0], zorder=zorders[0])
     else:  # Plot using background attributes:
-        ax.plot( xx, yy, zz, sym, color=clrs[1], alpha=alphas[1], zorder=zorders[1])
+        ax.plot(xx,yy,zz, sym, color=clrs[1], alpha=alphas[1], zorder=zorders[1])
     
     return
 
@@ -230,7 +231,7 @@ plot_line(ax, xx,yy,zz, vpAz,vpAlt, [lsFg,lsBg], [lwFg,lwBg], [cEq,cEq], [aLine,
 xx = np.cos(phi)  # cos RA
 yy = np.sin(phi)  # sin RA
 zz = zeros
-xx,yy,zz = rot2d_x( xx, yy, zz, -eps)   # 1. Rotate 23° about the x-axis
+xx,yy,zz = rot2d_x(xx,yy,zz, -eps)   # 1. Rotate 23° about the x-axis
 
 # Plot ecliptic plane:
 plane_verts = [list(zip( xx, yy, zz ))]  # list() needed for zip() in Python3
@@ -265,15 +266,12 @@ plot_line(ax, xx,yy,zz, vpAz,vpAlt, [lsFg,lsBg], [lwFg,lwBg], [cEq,cEq], [aLine,
 
 # Mark angle epsilon between equator and ecliptic:
 rr = 0.17
-xx = rr*zeros + 0.985    # Circle in y-z plane, around Aries (1,0,0)
+dx = np.sqrt(1 - rr**2)  # Distance centre of circle around (1,0,0) - origin for sphere with r=1
+xx = rr*zeros + dx       # Circle in y-z plane, around Aries (1,0,0)
 yy = rr*np.cos(phin*eps)
 zz = rr*np.sin(phin*eps)
-plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], [cEcl,cEcl], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
-plot_text(ax, xx[65],yy[65],zz[70], vpAz,vpAlt, r' $\varepsilon$  ', 'x-large', 'bold', 'left','center', [cEcl,cEcl], [aLbl,aLblBg], [zSphr,zSphr])
-
-
-
-print(np.arccos(1-rr))
+plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwBg*2,lwBg*2], [cEcl,cEcl], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
+plot_text(ax, xx[60],yy[60],zz[65], vpAz,vpAlt, r' $\varepsilon$', 'x-large', 'medium', 'left','center', [cEcl,cEcl], [aLbl,aLblBg], [zSphr,zSphr])
 
 
 
@@ -292,17 +290,18 @@ rSph = 0.05
 ax.plot_surface(rSph*xSph, rSph*ySph, rSph*zSph,  rstride=2, cstride=4, color=cEarth, linewidth=0, alpha=aEarth, zorder=zEarth)
 ax.text(0,0,0,  'Earth  ', ha='right', size='xx-large', weight='bold', va='center', color=cEarth, alpha=aLbl, zorder=zPlanlbl)
 
-# Compute and plot equator (circle in the x-y plane):
-xx = rSph*np.sin(hphi1-vpAz)  # Note: x/y swapped
+# Compute and plot Earth equator (circle in the x-y plane):
+xx = rSph*np.sin(hphi1-vpAz)  # Note: x/y swapped.  Half, to give the impression of a solid Earth
 yy = rSph*np.cos(hphi1-vpAz)
 zz = hzeros
-plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-',lsBg], [lwBg,lwBg], ['w','w'], [aLine,aLineBg], [zExt,zExt])
+plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-',lsBg], [lwBg,lwBg], ['w','w'], [aLine,aLineBg], [zExt,zExt], maxstep=0.001)
 
 
 
 # x-axis: line observer - spring/aries point:
-# ax.plot([0,2.5],[0,0], '--', color='k', alpha=aLine, zorder=zPlanlbl)
-# ax.text(2.2,0, 0, 'x', ha='left', size='x-large', va='center', color='k', alpha=aLbl, zorder=zPlanlbl)
+if plotAxes:
+    ax.plot([0,2.5],[0,0], '--', color='k', alpha=aLine, zorder=zPlanlbl)
+    ax.text(2.2,0, 0, 'x', ha='left', size='x-large', va='center', color='k', alpha=aLbl, zorder=zPlanlbl)
 
 ax.plot([-1,1],[0,0], '--', color='k', alpha=aLineBg, zorder=zPlanlbl)  # Intersection equatorial-ecliptical planes
 ax.plot([1],[0],[0], 'o', color='k', alpha=aLine,   zorder=zExt)  # Plot dot north pole
@@ -310,8 +309,9 @@ ax.text(1,0,0, 'S', ha='left', size='xx-large', weight='bold', va='top', zorder=
 
 
 # # y-axis: line observer - [0,1,0]:
-# ax.plot([0,0],[0,2], '--', color='k', alpha=aLine, zorder=zPlanlbl)
-# ax.text(0,1.3,0, 'y', ha='left', size='x-large', va='center', color='k', alpha=aLbl, zorder=zPlanlbl)
+if plotAxes:
+    ax.plot([0,0],[0,2], '--', color='k', alpha=aLine, zorder=zPlanlbl)
+    ax.text(0,1.1,0, 'y', ha='left', size='x-large', va='center', color='k', alpha=aLbl, zorder=zPlanlbl)
 
 
 # Plot north pole, rotation axis and labels 'NP','SP':
@@ -324,7 +324,8 @@ ax.text(0,0,-1., ' SP', ha='left', size='xx-large', weight='bold', va='center', 
 ax.plot([0],[0],[-1], 'o', color='k', alpha=aLineBg, zorder=zPlanlbl)  # Plot dot south pole
 
 # Cardinal points:
-# ax.text(0,0, 1.1, ' z', ha='left', size='x-large', va='center', color='k', alpha=aLbl, zorder=zPlanlbl)
+if plotAxes:
+    ax.text(0,0, 1.1, ' z', ha='left', size='x-large', va='center', color='k', alpha=aLbl, zorder=zPlanlbl)
 
 
 
@@ -349,7 +350,7 @@ plot_line(ax, np.array([0,xst]),np.array([0,yst]),np.array([0,zst]), vpAz,vpAlt,
 xx = np.cos(phin*decSt)
 yy = zeros
 zz = np.sin(phin*decSt)
-xx,yy,zz = rot2d_z( xx, yy, zz, -raSt)   # 1. Rotate RA about the z-axis
+xx,yy,zz = rot2d_z(xx,yy,zz, -raSt)   # 1. Rotate RA about the z-axis
 plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], [cEq,cEq], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
 plot_text(ax, xx[50],yy[50],zz[50], vpAz,vpAlt, r'$\delta$  ', 'x-large', 'bold', 'right','top', [cEq,cEq], [aLbl,aLblBg], [zSphr,zSphr])
 
@@ -374,8 +375,8 @@ raSt1,decSt1 = ecl2eq(lSt, 0, eps)  # (l=lSt,b=0)
 xx = np.cos(phin*bSt)
 yy = zeros
 zz = np.sin(phin*bSt)
-xx,yy,zz = rot2d_z( xx, yy, zz, -lSt)   # 1. Rotate the longitude about the x-axis
-xx,yy,zz = rot2d_x( xx, yy, zz, -eps)   # 1. Rotate over eps about the x-axis
+xx,yy,zz = rot2d_z(xx,yy,zz, -lSt)   # 1. Rotate the longitude about the x-axis
+xx,yy,zz = rot2d_x(xx,yy,zz, -eps)   # 1. Rotate over eps about the x-axis
 plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], [cEcl,cEcl], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
 plot_text(ax, xx[50],yy[50],zz[50], vpAz,vpAlt, r'$b$', 'x-large', 'bold', 'left','bottom', [cEcl,cEcl], [aLbl,aLblBg], [zSphr,zSphr])
 
@@ -386,7 +387,7 @@ plot_line(ax, np.array([0,xx[0]]), np.array([0,yy[0]]), np.array([0,zz[0]]), vpA
 xx = np.cos(phin*lSt)
 yy = np.sin(phin*lSt)
 zz = zeros
-xx,yy,zz = rot2d_x( xx, yy, zz, -eps)   # 1. Rotate over eps about the x-axis
+xx,yy,zz = rot2d_x(xx,yy,zz, -eps)   # 1. Rotate over eps about the x-axis
 plot_line(ax, xx,yy,zz, vpAz,vpAlt, ['-','-'], [lwFg*2,lwBg*2], [cEcl,cEcl], [aLine,aLineBg], [zSphrlbl,zPlanlbl])
 plot_text(ax, xx[50],yy[50],zz[50]-0.02, vpAz,vpAlt, r'$l$', 'x-large', 'bold', 'center','top', [cEcl,cEcl], [aLbl,aLblBg], [zSphr,zSphr])
 
