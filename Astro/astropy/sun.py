@@ -35,9 +35,10 @@ print('Wall time: ', tw1-tw0, 's')
 print('CPU time:  ', tc1-tc0, 's')
 
 # First calculation above takes ~30x more time (~1.1s) than the following calculations (~0.038 s)
+minute = 0
 for hour in range(24):
-#for hour in range(10):  # 100x for timing
-#    for minute in range(10):
+# for hour in range(10):  # 100x for timing
+#     for minute in range(10):
     tm = Time(dt.datetime(2019,10,31,  hour,minute,0))
     sun = coord.get_sun(tm)
     altaz = coord.AltAz(location=loc, obstime=tm)  # Must be computed every time - sets the parameters for the

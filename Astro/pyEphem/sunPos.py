@@ -34,10 +34,10 @@ if False:
     print()
 
 
-#print(ephem.localtime(utc))
+# print(ephem.localtime(utc))
 
 import time as timer
-#tw0 = timer.perf_counter()  # Wall time
+# tw0 = timer.perf_counter()  # Wall time
 tc0 = timer.process_time()  # CPU time
 
 # 10^6x:
@@ -48,7 +48,7 @@ for year in range(2000,2010):
                 for minute in range(10):
                     for second in range(10):
                         utc = datetime.datetime(2015,month,day, hour,minute,second)  # Manual utc
-                        #print("UT:  ", utc)
+                        # print("UT:  ", utc)
                         
                         obs.date = utc
                         
@@ -57,11 +57,11 @@ for year in range(2000,2010):
                         sun.compute(obs)
                         
                         # Print settings and output:
-                        #print(selftr(obs.date), sun.az * 57.2957795, sun.alt * 57.2957795)
+                        # print(selftr(obs.date), sun.az * 57.2957795, sun.alt * 57.2957795)
                         
-#tw1 = timer.perf_counter()
+# tw1 = timer.perf_counter()
 tc1 = timer.process_time()
 
-#print('Wall time:  %0.9f s' % (tw1-tw0))
-#print('CPU time:   %0.9f s' % (tc1-tc0))
+# print('Wall time:  %0.9f s' % (tw1-tw0))
+# print('CPU time:   %0.9f s' % (tc1-tc0))
 print(tc1-tc0, end=' ')
